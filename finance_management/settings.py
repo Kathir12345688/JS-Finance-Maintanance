@@ -5,10 +5,22 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# -------------------------
+# SECURITY SETTINGS
+# -------------------------
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'replace-this-secret-key')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ["finance-backend-q0a7.onrender.com","127.0.0.1","localhost"]
 
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = [
+    "finance-backend-q0a7.onrender.com",
+    "127.0.0.1",
+    "localhost"
+]
+
+# -------------------------
+# INSTALLED APPS
+# -------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -16,19 +28,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+
     'users',
     'customers',
     'payments',
     'reports',
 ]
 
+# -------------------------
+# MIDDLEWARE
+# -------------------------
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -39,6 +57,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'finance_management.urls'
 
+# -------------------------
+# TEMPLATES
+# -------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -57,48 +78,55 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'finance_management.wsgi.application'
 
+# -------------------------
+# DATABASE (FIXED FOR RENDER)
+# -------------------------
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "financedb",
-        'USER': 'finance_users',
-        'PASSWORD': 'finance_password',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('postgresql://finance_user:eKyQr9rIGoGfRapujPOiayUdaBKkmkzS@dpg-d8l91u9kh4rs73ftaqjg-a/finance_db_um37'),
+        conn_max_age=600
+    )
 }
 
+# -------------------------
+# PASSWORD VALIDATION
+# -------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# -------------------------
+# INTERNATIONALIZATION
+# -------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
+# -------------------------
+# STATIC FILES
+# -------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# -------------------------
+# AUTH USER MODEL
+# -------------------------
 AUTH_USER_MODEL = 'users.User'
 
+# -------------------------
+# REST FRAMEWORK
+# -------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -108,6 +136,9 @@ REST_FRAMEWORK = {
     ],
 }
 
+# -------------------------
+# JWT SETTINGS
+# -------------------------
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -116,8 +147,14 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# -------------------------
+# CORS
+# -------------------------
 CORS_ALLOW_ALL_ORIGINS = True
 
+# -------------------------
+# TWILIO
+# -------------------------
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
 TWILIO_FROM_NUMBER = os.environ.get('TWILIO_FROM_NUMBER', '')
