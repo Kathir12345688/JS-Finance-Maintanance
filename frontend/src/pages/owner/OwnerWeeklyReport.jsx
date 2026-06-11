@@ -1,0 +1,131 @@
+import { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import api from '../../services/api';
+import { fetchWeeklyReport } from '../../services/reports';
+import { normalizeListResponse } from '../../utils/apiHelpers';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+
+const formatCurrency = (value) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value || 0);
+
+export default function OwnerWeeklyReport() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [report, setReport] = useState({});
+  const [workers, setWorkers] = useState([]);
+  const [filters, setFilters] = useState({ from_date: '', to_date: '', worker: '', collection_type: '' });
+
+  useEffect(() => {
+    const loadWorkers = async () => {
+      try {
+        const response = await api.get('/users/', { params: { role: 'worker' } });
+        setWorkers(normalizeListResponse(response));
+      } catch (err) {
+        console.error('Unable to load workers');
+      }
+    };
+    loadWorkers();
+  }, []);
+
+  useEffect(() => {
+    const loadReport = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await fetchWeeklyReport(filters);
+        setReport(response.data || {});
+      } catch (err) {
+        setError(err.response?.data?.detail || 'Unable to load weekly report.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReport();
+  }, [filters]);
+
+  const workerRecords = report.worker_performance || [];
+  const outstandingRecords = report.outstanding_collections || [];
+  const chartData = {
+    labels: workerRecords.map((item) => item.worker_name || item.worker || 'Worker'),
+    datasets: [
+      {
+        label: 'Worker Collections',
+        data: workerRecords.map((item) => item.amount_collected || 0),
+        backgroundColor: '#0d6efd',
+      },
+    ],
+  };
+
+  return (
+    <div className="container-fluid">
+      <div className="mb-4">
+        <h2 className="mb-1">Weekly Report</h2>
+        <p className="text-muted">Weekly collection performance across collection types and outstanding balances.</p>
+      </div>
+
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-md-3">
+          <label className="form-label">From</label>
+          <input type="date" className="form-control" name="from_date" value={filters.from_date} onChange={(e) => setFilters((prev) => ({ ...prev, from_date: e.target.value }))} />
+        </div>
+        <div className="col-12 col-md-3">
+          <label className="form-label">To</label>
+          <input type="date" className="form-control" name="to_date" value={filters.to_date} onChange={(e) => setFilters((prev) => ({ ...prev, to_date: e.target.value }))} />
+        </div>
+        <div className="col-12 col-md-3">
+          <label className="form-label">Worker</label>
+          <select className="form-select" name="worker" value={filters.worker} onChange={(e) => setFilters((prev) => ({ ...prev, worker: e.target.value }))}>
+            <option value="">All Workers</option>
+            {workers.map((worker) => (
+              <option key={worker.id} value={worker.id}>{worker.name || worker.username}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-12 col-md-3">
+          <label className="form-label">Collection Type</label>
+          <select className="form-select" name="collection_type" value={filters.collection_type} onChange={(e) => setFilters((prev) => ({ ...prev, collection_type: e.target.value }))}>
+            <option value="">All Types</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-5"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>
+      ) : error ? (
+        <div className="alert alert-danger">{error}</div>
+      ) : (
+        <>
+          <div className="row g-3 mb-4">
+            {[
+              { title: 'Weekly Collection', value: report.weekly_total_collection },
+              { title: 'Top Worker', value: report.worker_performance?.[0]?.worker_name || 'N/A', isCurrency: false },
+              { title: 'Outstanding Customers', value: outstandingRecords.length, isCurrency: false },
+              { title: 'Due Customers', value: report.outstanding_collections?.length || 0, isCurrency: false },
+            ].map((item) => (
+              <div className="col-12 col-md-3" key={item.title}>
+                <div className="card shadow-sm h-100">
+                  <div className="card-body">
+                    <p className="text-muted mb-2">{item.title}</p>
+                    <h4>{item.isCurrency === false ? item.value : formatCurrency(item.value)}</h4>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card shadow-sm">
+            <div className="card-header bg-light">Weekly Collection Trend</div>
+            <div className="card-body">
+              <Bar data={chartData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

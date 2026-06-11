@@ -1,0 +1,147 @@
+:root {
+  font-family: 'Inter', sans-serif;
+  background: #f8f9fa;
+  color: #212529;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+.owner-layout {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.owner-layout > .d-flex {
+  min-height: calc(100vh - 72px);
+}
+
+.owner-sidebar {
+  width: 280px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 1050;
+}
+
+.owner-sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1040;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+.owner-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.owner-content {
+  width: 100%;
+}
+
+@media (min-width: 1200px) {
+  .owner-sidebar {
+    position: static;
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  .owner-content {
+    margin-left: 280px;
+  }
+}
+
+.worker-layout {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.worker-layout > .d-flex {
+  min-height: calc(100vh - 72px);
+}
+
+.worker-sidebar {
+  width: 280px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  z-index: 1050;
+}
+
+.worker-sidebar.open {
+  transform: translateX(0);
+}
+
+.worker-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.worker-content {
+  width: 100%;
+}
+
+.toast-container-custom {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1080;
+  max-width: 320px;
+}
+
+.confirm-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1090;
+}
+
+.confirm-dialog {
+  width: min(100%, 420px);
+}
+
+@media (min-width: 1200px) {
+  .worker-sidebar {
+    position: static;
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  .worker-content {
+    margin-left: 280px;
+  }
+}
