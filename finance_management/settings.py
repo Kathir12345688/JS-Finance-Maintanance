@@ -58,9 +58,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'finance_management.wsgi.application'
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("postgresql://finance_user:eKyQr9rIGoGfRapujPOiayUdaBKkmkzS@dpg-d8l91u9kh4rs73ftaqjg-a.singapore-postgres.render.com/finance_db_um37")
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': "financedb",
+        'USER': 'finance_users',
+        'PASSWORD': 'finance_password',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
