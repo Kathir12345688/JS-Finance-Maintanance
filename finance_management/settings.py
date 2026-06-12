@@ -22,9 +22,10 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = [
         'js-finance-maintanance-production.up.railway.app',
+        'js-finance-maintanance.vercel.app',
         'localhost',
         '127.0.0.1',
-    ] + os.environ.get('ALLOWED_HOSTS', '').split(',')
+    ] + [host for host in os.environ.get('ALLOWED_HOSTS', '').split(',') if host]
 
 
 INSTALLED_APPS = [
@@ -151,6 +152,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 CSRF_TRUSTED_ORIGINS = [
     'https://js-finance-maintanance-production.up.railway.app',
+    'https://js-finance-maintanance.vercel.app',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
