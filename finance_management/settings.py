@@ -20,7 +20,12 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    ALLOWED_HOSTS = [
+        'js-finance-maintanance-production.up.railway.app',
+        'localhost',
+        '127.0.0.1',
+    ] + os.environ.get('ALLOWED_HOSTS', '').split(',')
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
