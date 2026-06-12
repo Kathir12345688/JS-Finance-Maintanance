@@ -3,11 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "packageManager": "npm@10",
   "engines": {
     "node": "24.x"
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"const fs = require('fs'); try { fs.chmodSync('./node_modules/.bin/vite', 0o755); } catch (err) {}\"",
     "build": "vite build",
     "preview": "vite preview"
   },
