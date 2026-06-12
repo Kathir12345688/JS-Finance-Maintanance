@@ -149,7 +149,7 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = False
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://js-finance-maintanance-production-b837.up.railway.app',
+    'https://js-finance-maintanance-production.up.railway.app',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
