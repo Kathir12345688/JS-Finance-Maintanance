@@ -149,6 +149,13 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    'https://js-finance-maintanance-production.up.railway.app',
+    'https://js-finance-maintanance.vercel.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:5173',
+]
+CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://js-finance-maintanance-production.up.railway.app',
