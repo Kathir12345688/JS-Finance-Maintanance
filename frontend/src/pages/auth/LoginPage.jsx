@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -6,7 +6,7 @@ import { loginUser } from '../../services/auth';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const { showToast } = useToast();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +20,12 @@ export default function LoginPage() {
       navigate('/worker/dashboard');
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      redirectByRole(user);
+    }
+  }, [user]);
 
   const handlePasswordLogin = async (event) => {
     event.preventDefault();

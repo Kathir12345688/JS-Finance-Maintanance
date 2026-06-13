@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('worker');
   const [password, setPassword] = useState('');
@@ -19,6 +20,21 @@ export default function RegisterPage() {
 
     if (!username.trim()) {
       const message = 'Please enter your username.';
+      setError(message);
+      showToast(message, 'danger');
+      return;
+    }
+
+    if (!email.trim()) {
+      const message = 'Please enter your email address.';
+      setError(message);
+      showToast(message, 'danger');
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      const message = 'Please enter a valid email address.';
       setError(message);
       showToast(message, 'danger');
       return;
@@ -50,6 +66,7 @@ export default function RegisterPage() {
     try {
       const response = await registerUser({
         username,
+        email,
         phone,
         role,
         password,
@@ -107,6 +124,17 @@ export default function RegisterPage() {
                     type="text"
                     className="form-control"
                     placeholder="Enter username"
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Email Address</label>
+                  <input
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    type="email"
+                    className="form-control"
+                    placeholder="Enter email address"
                     required
                   />
                 </div>

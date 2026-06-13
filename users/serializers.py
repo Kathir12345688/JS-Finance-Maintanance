@@ -11,15 +11,19 @@ from datetime import timedelta
 
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField()
+    email = serializers.EmailField()
     phone = serializers.CharField()
     role = serializers.ChoiceField(choices=[(User.ROLE_OWNER, 'Owner'), (User.ROLE_WORKER, 'Worker')], default=User.ROLE_WORKER, required=False)
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         username = attrs.get('username')
+        email = attrs.get('email')
         phone = attrs.get('phone')
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError({'username': 'Username already registered'})
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError({'email': 'Email already registered'})
         if User.objects.filter(phone=phone).exists():
             raise serializers.ValidationError({'phone': 'Phone number already registered'})
         return attrs
@@ -27,6 +31,7 @@ class RegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = User(
             username=validated_data['username'],
+            email=validated_data['email'],
             name=validated_data['username'],
             phone=validated_data['phone'],
             role=validated_data.get('role', User.ROLE_WORKER),
