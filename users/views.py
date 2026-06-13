@@ -14,6 +14,11 @@ from .serializers import (
     UsernameTokenObtainPairSerializer,
 )
 from .permissions import IsOwner
+from .models import PhoneOTP
+from .sms import send_otp_sms
+from rest_framework_simplejwt.tokens import RefreshToken
+import random
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -35,6 +40,65 @@ class UsernameTokenObtainPairView(APIView):
         serializer = UsernameTokenObtainPairSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)
+
+
+class RequestPasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        phone = request.data.get('phone')
+        if not phone:
+            return Response({'detail': 'Phone number is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.filter(phone=phone).first()
+            if not user:
+                return Response({'detail': 'No user with that phone number.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            code = f"{random.randint(100000, 999999)}"
+            otp = PhoneOTP.objects.create(phone=phone, code=code)
+            try:
+                send_otp_sms(phone, code)
+            except Exception:
+                # In development send_otp_sms may log the code; still return success to client
+                pass
+
+            return Response({'detail': 'OTP sent to your phone.'})
+        except Exception as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class VerifyOTPResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        phone = request.data.get('phone')
+        code = request.data.get('code')
+        password = request.data.get('password')
+
+        if not phone or not code or not password:
+            return Response({'detail': 'phone, code and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_qs = PhoneOTP.objects.filter(phone=phone, code=code, is_used=False, expires_at__gt=timezone.now()).order_by('-created_at')
+        otp = otp_qs.first()
+        if not otp:
+            return Response({'detail': 'Invalid or expired OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(phone=phone).first()
+        if not user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(password)
+        user.save()
+
+        otp.is_used = True
+        otp.save()
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
 
 
 class UserViewSet(viewsets.ModelViewSet):

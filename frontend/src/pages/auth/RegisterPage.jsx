@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('worker');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -163,14 +164,25 @@ export default function RegisterPage() {
                 </div>
                 <div className="mb-3">
                   <label className="form-label">Password</label>
-                  <input
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    type="password"
-                    className="form-control"
-                    placeholder="Create a strong password"
-                    required
-                  />
+                  <div className="input-group">
+                    <input
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      type={showPassword ? 'text' : 'password'}
+                      className="form-control"
+                      placeholder="Create a strong password"
+                      required
+                      aria-label="Password"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => setShowPassword((s) => !s)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? 'Hide' : 'Show'}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" className="btn btn-primary w-100" disabled={loading}>
                   {loading ? 'Registering...' : 'Register'}
